@@ -11,6 +11,12 @@
       <choose-token :only-allowed="true" @chosen="chooseFeeToken($event)" />
     </i-modal>
 
+    <!-- Choose fee token -->
+    <i-modal v-model="chooseFeeRelayerModal" size="md">
+      <template slot="header">Choose fee relayer</template>
+      <choose-relayer :only-allowed="true" :transactionInfo="relayTransactionInfo" />
+    </i-modal>
+
     <!-- Transfer warning modal -->
     <i-modal v-model="transferWithdrawWarningModal" class="prevent-close" size="md">
       <template slot="header">Transfer warning</template>
@@ -173,6 +179,10 @@
         <div v-if="(((feesObj && feesObj[transactionMode]) || feesLoading) && chosenToken && inputtedAddress) || !ownAccountUnlocked" class="_text-center _margin-top-1">
           <span class="linkText" @click="chooseFeeTokenModal = true">Choose fee token</span>
         </div>
+
+        <div v-if="(((feesObj && feesObj[transactionMode]) || feesLoading) && chosenToken && inputtedAddress) || !ownAccountUnlocked" class="_text-center _margin-top-1">
+          <span class="linkText" @click="chooseFeeRelayerModal = true">Choose fee relayer</span>
+        </div>
       </div>
 
       <div v-if="showTimeEstimationHint" class="totalPrice">Estimated processing time: <strong>~5 hours</strong></div>
@@ -188,6 +198,7 @@
 <script lang="ts">
 import chooseContact from "@/blocks/ChooseContact.vue";
 import chooseToken from "@/blocks/ChooseToken.vue";
+import chooseRelayer from "@/blocks/ChooseRelayer.vue";
 import addressInput from "@/components/AddressInput.vue";
 import amountInput from "@/components/AmountInput.vue";
 
@@ -214,6 +225,7 @@ export default Vue.extend({
     chooseContact,
     amountInput,
     chooseToken,
+    chooseRelayer,
   },
   props: {
     type: {
@@ -236,6 +248,7 @@ export default Vue.extend({
       /* Choose token */
       chooseTokenModal: false,
       chooseFeeTokenModal: false,
+      chooseFeeRelayerModal: false,
 
       /* Transaction success block */
       transactionInfo: <ZkInTransactionInfo>{
@@ -257,6 +270,12 @@ export default Vue.extend({
           amount: "",
           token: false,
         },
+      },
+
+      relayTransactionInfo: {
+        to: "",
+        amount: "",
+        token: "",
       },
 
       /* Warning Modal */
@@ -377,6 +396,17 @@ export default Vue.extend({
     },
     inputtedAddress() {
       this.requestFees();
+    },
+    chooseFeeRelayerModal: {
+      deep: true,
+      handler(val) {
+        if (val) {
+          this.relayTransactionInfo.to = this.inputtedAddress;
+          this.relayTransactionInfo.token = (this.chosenToken as ZkInBalance).symbol;
+          const txAmount = utils.parseToken((this.chosenToken as ZkInBalance).symbol, this.inputtedAmount);
+          this.relayTransactionInfo.amount = txAmount.toString();
+        }
+      },
     },
   },
   async mounted() {

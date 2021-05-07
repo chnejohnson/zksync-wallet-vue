@@ -19,6 +19,10 @@
               <i class="mobileOnly ri-history-line"></i>
               <span>Transactions</span>
             </nuxt-link>
+            <nuxt-link class="headerLink" to="/relayer">
+              <i class="mobileOnly ri-home-line"></i>
+              <span>Relayer</span>
+            </nuxt-link>
           </div>
         </i-column>
         <i-column :xs="6" :md="3" class="_margin-left-auto _padding-right-0 _display-flex _justify-content-end">
